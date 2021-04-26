@@ -8,6 +8,7 @@ UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = set(['jpeg', 'jpg', 'png', 'gif'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+
 def getLoginDetails():
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
@@ -24,6 +25,7 @@ def getLoginDetails():
     conn.close()
     return (loggedIn, firstName, noOfItems)
 
+
 @app.route("/")
 def root():
     loggedIn, firstName, noOfItems = getLoginDetails()
@@ -37,6 +39,7 @@ def root():
     return render_template('home.html', itemData=itemData,
                            loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems, categoryData=categoryData)
 
+
 @app.route("/add")
 def admin():
     with sqlite3.connect('database.db') as conn:
@@ -45,6 +48,7 @@ def admin():
         categories = cur.fetchall()
     conn.close()
     return render_template('add.html', categories=categories)
+
 
 @app.route("/addItem", methods=["GET", "POST"])
 def addItem():
@@ -76,6 +80,7 @@ def addItem():
         print(msg)
         return redirect(url_for('root'))
 
+    
 @app.route("/remove")
 def remove():
     with sqlite3.connect('database.db') as conn:
@@ -84,6 +89,7 @@ def remove():
         data = cur.fetchall()
     conn.close()
     return render_template('remove.html', data=data)
+
 
 @app.route("/removeItem")
 def removeItem():
@@ -100,6 +106,7 @@ def removeItem():
     conn.close()
     print(msg)
     return redirect(url_for('root'))
+
 
 @app.route("/displayCategory")
 def displayCategory():
@@ -118,6 +125,7 @@ def displayCategory():
         return render_template('displayCategory.html', data=data, loggedIn=loggedIn,
                                firstName=firstName, noOfItems=noOfItems, categoryName=categoryName)
 
+    
 @app.route("/account/profile")
 def profileHome():
     if 'email' not in session:
@@ -125,6 +133,7 @@ def profileHome():
     loggedIn, firstName, noOfItems = getLoginDetails()
     return render_template("profileHome.html", loggedIn=loggedIn,
                            firstName=firstName, noOfItems=noOfItems)
+
 
 @app.route("/account/profile/edit")
 def editProfile():
@@ -138,6 +147,7 @@ def editProfile():
     conn.close()
     return render_template("editProfile.html", profileData=profileData,
                            loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
+
 
 @app.route("/account/profile/changePassword", methods=["GET", "POST"])
 def changePassword():
@@ -168,6 +178,7 @@ def changePassword():
     else:
         return render_template("changePassword.html")
 
+    
 @app.route("/updateProfile", methods=["GET", "POST"])
 def updateProfile():
     if request.method == 'POST':
@@ -197,6 +208,7 @@ def updateProfile():
         con.close()
         return redirect(url_for('editProfile'))
 
+    
 @app.route("/loginForm")
 def loginForm():
     if 'email' in session:
@@ -204,6 +216,7 @@ def loginForm():
     else:
         return render_template('login.html', error='')
 
+    
 @app.route("/login", methods = ['POST', 'GET'])
 def login():
     if request.method == 'POST':
@@ -216,6 +229,7 @@ def login():
             error = 'Invalid UserId / Password'
             return render_template('login.html', error=error)
 
+        
 @app.route("/productDescription")
 def productDescription():
     loggedIn, firstName, noOfItems = getLoginDetails()
@@ -227,6 +241,7 @@ def productDescription():
     conn.close()
     return render_template("productDescription.html", data=productData, loggedIn = loggedIn,
                            firstName = firstName, noOfItems = noOfItems)
+
 
 @app.route("/addToCart")
 def addToCart():
@@ -248,6 +263,7 @@ def addToCart():
         conn.close()
         return redirect(url_for('root'))
 
+    
 @app.route("/cart")
 def cart():
     if 'email' not in session:
@@ -266,6 +282,7 @@ def cart():
         totalPrice += row[2]
     return render_template("cart.html", products = products, totalPrice=totalPrice,
                            loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
+
 
 @app.route("/removeFromCart")
 def removeFromCart():
@@ -287,10 +304,12 @@ def removeFromCart():
     conn.close()
     return redirect(url_for('root'))
 
+
 @app.route("/logout")
 def logout():
     session.pop('email', None)
     return redirect(url_for('root'))
+
 
 def is_valid(email, password):
     con = sqlite3.connect('database.db')
@@ -301,6 +320,7 @@ def is_valid(email, password):
         if row[0] == email and row[1] == hashlib.md5(password.encode()).hexdigest():
             return True
     return False
+
 
 @app.route("/register", methods = ['GET', 'POST'])
 def register():
@@ -336,13 +356,16 @@ def register():
         con.close()
         return render_template("login.html", error=msg)
 
+    
 @app.route("/registerationForm")
 def registrationForm():
     return render_template("register.html")
 
+
 def allowed_file(filename):
     return '.' in filename and \
             filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
 
 def parse(data):
     ans = []
